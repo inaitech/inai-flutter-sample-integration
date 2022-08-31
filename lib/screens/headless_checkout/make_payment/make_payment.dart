@@ -107,7 +107,6 @@ class MakePayment extends StatelessWidget {
     String? orderId = await prepareOrder();
 
     if (orderId == null) {
-      await Future.delayed(const Duration(milliseconds: 500), () {});
       throw ("Error while preparing order");
     }
 
@@ -116,8 +115,8 @@ class MakePayment extends StatelessWidget {
   }
 
   void openPaymentMethodFields(dynamic paymentMethod, BuildContext context) {
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => const MakePaymentFields()));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => MakePaymentFields(paymentMethod: paymentMethod)));
   }
 
   String sanitizeRailCode(String railCode) {
@@ -132,7 +131,7 @@ class MakePayment extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Payment'),
+          title: const Text('Payment Methods'),
           backgroundColor: ThemeColors.bgPurple,
         ),
         body: SafeArea(
