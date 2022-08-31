@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:inai_flutter_sdk/main.dart';
+
+import '../../../contants.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -11,12 +14,18 @@ void debugPrint(String message) {
   }
 }
 
-void showAlert(BuildContext context, String message, {String title = "Alert"}) {
+typedef AlertFinishCallback = void Function();
+
+void showAlert(BuildContext context, String message,
+    {String title = "Alert", AlertFinishCallback? callback}) {
   // set up the button
   Widget okButton = TextButton(
     child: const Text("OK"),
     onPressed: () {
       Navigator.pop(context);
+      if (callback != null) {
+        callback();
+      }
     },
   );
 
@@ -32,6 +41,7 @@ void showAlert(BuildContext context, String message, {String title = "Alert"}) {
   // show the dialog
   showDialog(
     context: context,
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return alert;
     },
@@ -39,9 +49,12 @@ void showAlert(BuildContext context, String message, {String title = "Alert"}) {
 }
 
 class MakePaymentFields extends StatelessWidget {
-  MakePaymentFields({Key? key, this.paymentMethod}) : super(key: key);
+  MakePaymentFields({Key? key, this.paymentMethod, required this.orderId})
+      : super(key: key);
 
   final dynamic paymentMethod;
+  final String orderId;
+
   final Map<String, dynamic> formData = {};
 
   @override
@@ -78,7 +91,7 @@ class MakePaymentFields extends StatelessWidget {
           minimumSize: const Size.fromHeight(50), // NEW
         ),
         onPressed: () {
-          debugPrint(formData.toString());
+          submitPayment(context);
         },
         child: const Text(
           "Checkout",
@@ -121,6 +134,7 @@ class MakePaymentFields extends StatelessWidget {
               children: [
                 const SizedBox(height: 10),
                 TextFormField(
+                    autocorrect: false,
                     initialValue: formData[key],
                     style: const TextStyle(fontSize: 16.0),
                     minLines: lines,
@@ -138,6 +152,73 @@ class MakePaymentFields extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void navigateBackToHome(BuildContext context) {
+    Navigator.popUntil(context, (route) {
+      if (route.isFirst) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  void submitPayment(BuildContext context) async {
+    var result = await inaiMakePayment(context);
+
+    String resultStr = result.data.toString();
+    String resultTitle = "";
+    switch (result.status) {
+      case InaiStatus.success:
+        resultTitle = "Payment Success! ";
+        break;
+      case InaiStatus.failed:
+        resultTitle = "Payment Failed!";
+        break;
+
+      case InaiStatus.canceled:
+        resultTitle = "Payment Canceled!";
+        break;
+    }
+
+    // ignore: use_build_context_synchronously
+    showAlert(context, resultStr, title: resultTitle, callback: () {
+      navigateBackToHome(context);
+    });
+  }
+
+  Future<dynamic> inaiMakePayment(BuildContext context) async {
+    try {
+      InaiConfig config = InaiConfig(
+          token: Constants.token,
+          orderId: orderId,
+          countryCode: Constants.country);
+
+      InaiCheckout checkout = InaiCheckout(config);
+
+      String railCode = paymentMethod["rail_code"];
+
+      List<Map<String, dynamic>> paymentDetailFormFields = [];
+      List<dynamic> paymentFields = paymentMethod["form_fields"];
+
+      for (var paymentField in paymentFields) {
+        String paymentFieldName = paymentField["name"];
+        paymentDetailFormFields.add(
+            {"name": paymentFieldName, "value": formData[paymentFieldName]});
+      }
+
+      Map<String, dynamic> paymentDetails = {"fields": paymentDetailFormFields};
+
+      final result = await checkout.makePayment(
+          paymentMethodOption: railCode,
+          context: context,
+          paymentDetails: paymentDetails);
+
+      return result;
+    } catch (ex) {
+      //  Handle configuration errors here
+    }
+    return null;
   }
 
   String sanitizeRailCode(String railCode) {
@@ -165,10 +246,10 @@ class CheckboxFormFieldState extends State<CheckboxFormField> {
   Widget build(BuildContext context) {
     return Checkbox(
         value: _isChecked,
+        activeColor: ThemeColors.bgPurple,
         onChanged: (checked) {
           setState(() {
             _isChecked = checked!;
-            debugPrint(checked.toString());
             widget.onChangeCallback(checked);
           });
         });

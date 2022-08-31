@@ -69,7 +69,7 @@ This product is made with Primegreen, a series of high-performance recycled mate
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => const MakePayment()));
                 },
-                child: const Text('Buy Now'),
+                child: const Text('Buy Now', style: TextStyle(fontSize: 18)),
               ),
             )
           ],

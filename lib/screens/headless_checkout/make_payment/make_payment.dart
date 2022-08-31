@@ -45,6 +45,8 @@ void showAlert(BuildContext context, String message) {
   );
 }
 
+String? orderId;
+
 class MakePayment extends StatelessWidget {
   const MakePayment({Key? key}) : super(key: key);
 
@@ -74,12 +76,12 @@ class MakePayment extends StatelessWidget {
       body: postdata,
     );
 
-    String? orderId;
+    String? generatedOrderId;
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("id")) {
-      orderId = responseBody["id"];
+      generatedOrderId = responseBody["id"];
     }
-    return orderId;
+    return generatedOrderId;
   }
 
   Future<List<dynamic>> getPaymentMethods(String orderId) async {
@@ -104,19 +106,23 @@ class MakePayment extends StatelessWidget {
   }
 
   Future<List<dynamic>> initData() async {
-    String? orderId = await prepareOrder();
+    String? generatedOrderId = await prepareOrder();
 
-    if (orderId == null) {
+    if (generatedOrderId == null) {
       throw ("Error while preparing order");
     }
 
-    List<dynamic> paymentMethods = await getPaymentMethods(orderId);
+    orderId = generatedOrderId;
+    List<dynamic> paymentMethods = await getPaymentMethods(generatedOrderId);
     return paymentMethods;
   }
 
   void openPaymentMethodFields(dynamic paymentMethod, BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => MakePaymentFields(paymentMethod: paymentMethod)));
+        builder: (context) => MakePaymentFields(
+              paymentMethod: paymentMethod,
+              orderId: orderId!,
+            )));
   }
 
   String sanitizeRailCode(String railCode) {
