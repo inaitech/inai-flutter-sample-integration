@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sample_integration/screens/headless_checkout/save_payment_method/save_payment_method.dart';
 import 'package:flutter_sample_integration/screens/product.dart';
 
 class ThemeColors {
@@ -9,6 +10,7 @@ class ThemeColors {
 // Add more flows here
 const flows = {
   "MakePayment": "Make Payment",
+  "SavePaymentMethod": "Save A Payment Method",
 };
 
 class HeadlessCheckout extends StatelessWidget {
@@ -53,6 +55,11 @@ class FlowItem extends StatelessWidget {
       case "MakePayment":
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => const Product()));
+        break;
+
+      case "SavePaymentMethod":
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const SavePaymentMethod()));
         break;
       //  Add more flows here
     }
