@@ -93,8 +93,11 @@ class MakePaymentFields extends StatelessWidget {
     String label = formField["label"];
     String key = formField["name"];
     String hint = "";
+
     if (formFieldMap.containsKey("placeholder")) {
-      hint = formField["placeholder"];
+      if (formFieldMap["placeholder"] != null) {
+        hint = formField["placeholder"];
+      }
     }
 
     String fieldType = formField["field_type"];
@@ -119,7 +122,7 @@ class MakePaymentFields extends StatelessWidget {
                 const SizedBox(height: 10),
                 TextFormField(
                     initialValue: formData[key],
-                    style: const TextStyle(fontSize: 14.0),
+                    style: const TextStyle(fontSize: 16.0),
                     minLines: lines,
                     maxLines: lines,
                     decoration: InputDecoration(
