@@ -11,6 +11,7 @@ class ThemeColors {
 const flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
+  "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
 };
 
 class HeadlessCheckout extends StatelessWidget {
@@ -53,14 +54,20 @@ class FlowItem extends StatelessWidget {
   void openFlow(String flowKey, BuildContext context) {
     switch (flowKey) {
       case "MakePayment":
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => const Product()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const Product(mode: "makePayment")));
         break;
 
       case "SavePaymentMethod":
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const SavePaymentMethod()));
         break;
+
+      case "MakePaymentWithSavedMethod":
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const Product(mode: "payWithSavedMethod")));
+        break;
+
       //  Add more flows here
     }
   }
