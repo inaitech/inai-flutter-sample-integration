@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sample_integration/screens/headless_checkout/get_card_info/get_card_info.dart';
 import 'package:flutter_sample_integration/screens/headless_checkout/save_payment_method/save_payment_method.dart';
 import 'package:flutter_sample_integration/screens/product.dart';
 
@@ -12,6 +13,7 @@ const flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
+  "GetCardInfo": "Get Card Info"
 };
 
 class HeadlessCheckout extends StatelessWidget {
@@ -66,6 +68,11 @@ class FlowItem extends StatelessWidget {
       case "MakePaymentWithSavedMethod":
         Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => const Product(mode: "payWithSavedMethod")));
+        break;
+
+      case "GetCardInfo":
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => const GetCardInfo()));
         break;
 
       //  Add more flows here
