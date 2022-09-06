@@ -158,12 +158,13 @@ class ProductDropIn extends StatelessWidget {
     return null;
   }
 
-  void dropInCheckout(BuildContext context, {bool showResult = false}) async {
+  void dropInCheckout(BuildContext context) async {
+    showProgressIndicator(context);
     //  Generate order id only once
     //  Same order id can be reused for dropInCheckout.
     String? orderId = await prepareOrder();
-    debugPrint(orderId!);
-    InaiResult result = await inaiPresentCheckout(context, orderId);
+    hideProgressIndicator(context);
+    InaiResult result = await inaiPresentCheckout(context, orderId!);
     String resultStr = result.data.toString();
     String resultTitle = "";
     switch (result.status) {
@@ -178,12 +179,9 @@ class ProductDropIn extends StatelessWidget {
         resultTitle = "Payment Canceled!";
         break;
     }
-
-    if (showResult) {
-      hideProgressIndicator(context);
-
-      showAlert(context, resultStr, title: resultTitle);
-    }
+    showAlert(context, resultStr, title: resultTitle, callback: () {
+      navigateBackToHome(context);
+    });
   }
 
   @override
