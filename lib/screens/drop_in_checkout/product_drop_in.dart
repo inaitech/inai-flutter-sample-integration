@@ -8,8 +8,6 @@ import 'package:inai_flutter_sdk/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../contants.dart';
 
-String? orderId;
-
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
 }
@@ -83,7 +81,7 @@ class ProductDropIn extends StatelessWidget {
     }
   }
 
-  prepareOrder() async {
+  Future<String?> prepareOrder() async {
     String authData = "${Constants.token}:${Constants.password}";
     String authString = "BASIC ${base64Encode(authData.codeUnits)}";
 
@@ -140,7 +138,8 @@ class ProductDropIn extends StatelessWidget {
     return generatedOrderId;
   }
 
-  Future<dynamic> inaiPresentCheckout(BuildContext context) async {
+  Future<dynamic> inaiPresentCheckout(
+      BuildContext context, String orderId) async {
     try {
       InaiConfig config = InaiConfig(
           token: Constants.token,
@@ -162,9 +161,9 @@ class ProductDropIn extends StatelessWidget {
   void dropInCheckout(BuildContext context, {bool showResult = false}) async {
     //  Generate order id only once
     //  Same order id can be reused for dropInCheckout.
-    orderId ??= await prepareOrder();
+    String? orderId = await prepareOrder();
     debugPrint(orderId!);
-    InaiResult result = await inaiPresentCheckout(context);
+    InaiResult result = await inaiPresentCheckout(context, orderId);
     String resultStr = result.data.toString();
     String resultTitle = "";
     switch (result.status) {
@@ -180,11 +179,11 @@ class ProductDropIn extends StatelessWidget {
         break;
     }
 
-    // if (showResult) {
-    //   hideProgressIndicator(context);
+    if (showResult) {
+      hideProgressIndicator(context);
 
-    //   showAlert(context, resultStr, title: resultTitle);
-    // }
+      showAlert(context, resultStr, title: resultTitle);
+    }
   }
 
   @override
