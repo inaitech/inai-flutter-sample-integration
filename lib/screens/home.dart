@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sample_integration/screens/drop_in_checkout/product_drop_in.dart';
 
 import 'headless_checkout/headless_checkout.dart';
 
@@ -10,6 +11,7 @@ class ThemeColors {
 // Add more flows here
 const flows = {
   "HeadlessCheckout": "Headless Checkout",
+  "DropInChekout": "Drop In Checkout"
 };
 
 class Home extends StatelessWidget {
@@ -54,6 +56,11 @@ class FlowItem extends StatelessWidget {
       case "HeadlessCheckout":
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const HeadlessCheckout()));
+        break;
+
+      case "DropInChekout":
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const ProductDropIn()));
         break;
       //  Add more flows here
     }
