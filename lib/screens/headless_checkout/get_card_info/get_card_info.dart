@@ -45,6 +45,23 @@ class Debounce {
   }
 }
 
+void hideProgressIndicator(BuildContext context) {
+  Navigator.pop(context);
+}
+
+void showProgressIndicator(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Center(
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [Center(child: CircularProgressIndicator())]),
+      );
+    },
+  );
+}
+
 void showAlert(BuildContext context, String message,
     {String title = "Alert", AlertFinishCallback? callback}) {
   // set up the button
@@ -177,6 +194,11 @@ class _GetCardInfoState extends State<GetCardInfo> {
     if (cardNumber.length < 6) {
       return;
     }
+
+    if (showResult) {
+      showProgressIndicator(context);
+    }
+
     //  Generate order id only once
     //  Same order id can be reused for getCardInfo
     orderId ??= await prepareOrder();
@@ -202,6 +224,8 @@ class _GetCardInfoState extends State<GetCardInfo> {
     }
 
     if (showResult) {
+      hideProgressIndicator(context);
+
       showAlert(context, resultStr, title: resultTitle);
     }
   }
