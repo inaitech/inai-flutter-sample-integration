@@ -301,6 +301,7 @@ class _TextBoxFormFieldState extends State<TextBoxFormField> {
   late Map<String, dynamic>? fieldValidationTracker;
 
   final _controller = TextEditingController();
+  String cardExpiry = "";
 
   @override
   void initState() {
@@ -366,6 +367,44 @@ class _TextBoxFormFieldState extends State<TextBoxFormField> {
     return true;
   }
 
+  String formattedCardExpiry(String expiryDate) {
+    var formattedExpiryDate = "";
+    // Check necessary so that we format fresh inputs and not the same string.
+    //  because once we set the  TextInput with formatted string onChangeText will be
+    //  triggered again for the formatted string.
+    if (expiryDate != cardExpiry) {
+      //  Append a slash if length is 2 and slash is not yet added.
+      if (expiryDate.length == 2 && !cardExpiry.endsWith('/')) {
+        formattedExpiryDate = "$expiryDate/";
+      }
+      //  This case handles a delete operation.
+      //  For Ex. InputText = 12 and formattedExpiryDate = 12/ then a delete
+      //  operation deletes the 2 along with the slash.
+      else if (expiryDate.length == 2 && cardExpiry.endsWith('/')) {
+        //  Valid month check
+        if (int.parse(expiryDate) <= 12) {
+          formattedExpiryDate = expiryDate.substring(0, 1);
+        } else {
+          formattedExpiryDate = '';
+        }
+      }
+      //  If input is the first character and its above 1 (for ex: 5)
+      //  then we assume its the 5th month and format it as 05
+      else if (expiryDate.length == 1) {
+        if (int.parse(expiryDate) > 1) {
+          formattedExpiryDate = "0$expiryDate/";
+        } else {
+          formattedExpiryDate = expiryDate;
+        }
+      } else {
+        formattedExpiryDate = expiryDate;
+      }
+    }
+
+    cardExpiry = formattedExpiryDate;
+    return formattedExpiryDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -384,6 +423,11 @@ class _TextBoxFormFieldState extends State<TextBoxFormField> {
             hintText: hint),
         onChanged: (text) {
           setState(() {
+            if (key == "expiry") {
+              _controller.text = formattedCardExpiry(text);
+              _controller.selection =
+                  TextSelection.collapsed(offset: _controller.text.length);
+            }
             _borderColor = getBorderColor();
           });
           widget.onChangeCallback(text, fieldValidationTracker!);
