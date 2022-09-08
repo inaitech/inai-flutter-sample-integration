@@ -6,6 +6,8 @@ import '../../../contants.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
+  static const Color errorRed = Colors.red;
+  static const Color normal = Colors.grey;
 }
 
 void debugPrint(String message) {
@@ -56,6 +58,7 @@ class MakePaymentFields extends StatelessWidget {
   final String orderId;
 
   final Map<String, dynamic> formData = {};
+  final Map<String, dynamic> formValidationTracker = {};
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +94,11 @@ class MakePaymentFields extends StatelessWidget {
           minimumSize: const Size.fromHeight(50), // NEW
         ),
         onPressed: () {
-          submitPayment(context);
+          if (validateForm()) {
+            submitPayment(context);
+          } else {
+            showAlert(context, "Please enter valid details");
+          }
         },
         child: const Text(
           "Checkout",
@@ -133,20 +140,12 @@ class MakePaymentFields extends StatelessWidget {
             Column(
               children: [
                 const SizedBox(height: 10),
-                TextFormField(
-                    autocorrect: false,
-                    initialValue: formData[key],
-                    style: const TextStyle(fontSize: 16.0),
-                    minLines: lines,
-                    maxLines: lines,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 0),
-                        hintText: hint),
-                    onChanged: (text) {
-                      formData[key] = text;
-                    }),
+                TextBoxFormField(
+                  formFieldMap: formFieldMap,
+                  onChangeCallback: (text, fieldValidation) {
+                    formValidationTracker.addEntries(fieldValidation.entries);
+                  },
+                )
               ],
             )
         ],
@@ -161,6 +160,26 @@ class MakePaymentFields extends StatelessWidget {
       }
       return false;
     });
+  }
+
+  bool validateForm() {
+    var areFormInputsValid = true;
+    var areRequiredInputsFilled = true;
+    formValidationTracker.entries.forEach((fieldValidation) {
+      if (fieldValidation.value["isNonEmpty"] == false) {
+        areRequiredInputsFilled = false;
+      }
+
+      if (fieldValidation.value["isValid"] == false) {
+        areFormInputsValid = false;
+      }
+    });
+
+    if (areRequiredInputsFilled && areFormInputsValid) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void submitPayment(BuildContext context) async {
@@ -252,6 +271,122 @@ class CheckboxFormFieldState extends State<CheckboxFormField> {
             _isChecked = checked!;
             widget.onChangeCallback(checked);
           });
+        });
+  }
+}
+
+typedef TextboxOnChangeCallback = void Function(
+    String text, Map<String, dynamic> fieldValidation);
+
+class TextBoxFormField extends StatefulWidget {
+  const TextBoxFormField(
+      {Key? key, required this.formFieldMap, required this.onChangeCallback})
+      : super(key: key);
+  final Map<String, dynamic> formFieldMap;
+  final TextboxOnChangeCallback onChangeCallback;
+
+  @override
+  State<TextBoxFormField> createState() => _TextBoxFormFieldState();
+}
+
+class _TextBoxFormFieldState extends State<TextBoxFormField> {
+  late String key;
+  late String hint;
+  late int maxLength;
+  late int minLength;
+  late String inputRegex;
+  late bool required;
+  late Color _borderColor;
+  late Map<String, dynamic> validations;
+  late Map<String, dynamic>? fieldValidationTracker;
+
+  final _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _borderColor = ThemeColors.normal;
+    key = widget.formFieldMap["name"];
+
+    if (widget.formFieldMap.containsKey("placeholder")) {
+      if (widget.formFieldMap["placeholder"] != null) {
+        hint = widget.formFieldMap["placeholder"];
+      }
+    }
+
+    validations =
+        widget.formFieldMap["validations"] as Map<String, dynamic>? ?? {};
+    minLength = validations["min_length"] as int? ?? 0;
+    maxLength = validations["max_length"] as int? ?? 0;
+    inputRegex = validations["input_mask_regex"] as String? ?? '.*';
+    required = validations["required"] as bool? ?? false;
+    fieldValidationTracker = {
+      key: {"isNonEmpty": false, "isValid": false}
+    };
+  }
+
+  Color getBorderColor() {
+    // at any time, we can get the text from _controller.value.text
+    final text = _controller.value.text;
+
+    if (validate(text)) {
+      // return null if the text is valid
+      return Colors.grey;
+    } else {
+      return ThemeColors.errorRed;
+    }
+  }
+
+  bool validate(String text) {
+    //  Check for empty text
+    if (required && text.isEmpty) {
+      fieldValidationTracker![key]["isNonEmpty"] = false;
+      return false;
+    }
+
+    //  Check if length constraints are satisfied
+    if (minLength != 0 && maxLength != 0) {
+      if (text.length < minLength || text.length > maxLength) {
+        fieldValidationTracker![key]["isValid"] = false;
+        return false;
+      }
+    }
+
+    //  Match input text with pattern
+    RegExp regex = RegExp(inputRegex);
+    Iterable matches = regex.allMatches(text);
+    if (matches.isEmpty) {
+      fieldValidationTracker![key]["isValid"] = false;
+      return false;
+    }
+
+    // Valid Input
+    fieldValidationTracker![key]["isNonEmpty"] = true;
+    fieldValidationTracker![key]["isValid"] = true;
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+        autocorrect: false,
+        style: const TextStyle(fontSize: 16.0),
+        minLines: 1,
+        maxLines: 1,
+        controller: _controller,
+        decoration: InputDecoration(
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: _borderColor)),
+            enabledBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: _borderColor)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
+            hintText: hint),
+        onChanged: (text) {
+          setState(() {
+            _borderColor = getBorderColor();
+          });
+          widget.onChangeCallback(text, fieldValidationTracker!);
         });
   }
 }
