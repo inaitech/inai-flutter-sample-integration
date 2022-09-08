@@ -47,11 +47,7 @@ android {
         applicationId "io.inai.flutter_sample_integration"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-<<<<<<< Updated upstream
         minSdkVersion 21
-=======
-        minSdkVersion 20
->>>>>>> Stashed changes
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
