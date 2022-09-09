@@ -144,6 +144,7 @@ class PayWithSavedPaymentMethodFields extends StatelessWidget {
                 TextBoxFormField(
                   formFieldMap: formFieldMap,
                   onChangeCallback: (text, fieldValidation) {
+                    formData[key] = text;
                     formValidationTracker.addEntries(fieldValidation.entries);
                   },
                 ),
