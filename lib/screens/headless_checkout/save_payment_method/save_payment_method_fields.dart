@@ -322,17 +322,16 @@ class _CountrySelectorState extends State<CountrySelector> {
     key = widget.formFieldMap["name"];
     countries = [];
     countries.addAll(widget.formFieldMap["data"]["values"]);
-    dropDownValue = "";
+    dropDownValue = countries.first["label"];
     fieldValidationTracker = {
       key: {"isNonEmpty": false, "isValid": false}
     };
-    debugPrint(countries.toString());
-    debugPrint("DropDownValue: $dropDownValue");
   }
 
   @override
   Widget build(BuildContext context) {
     return DropdownButton(
+      value: dropDownValue,
       items: countries
           .map((countryData) => DropdownMenuItem(
                 value: countryData["label"],
