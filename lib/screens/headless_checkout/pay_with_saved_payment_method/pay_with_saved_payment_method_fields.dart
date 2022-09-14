@@ -157,10 +157,7 @@ class PayWithSavedPaymentMethodFields extends StatelessWidget {
 
   void navigateBackToHome(BuildContext context) {
     Navigator.popUntil(context, (route) {
-      if (route.isFirst) {
-        return true;
-      }
-      return false;
+      return route.isFirst;
     });
   }
 
