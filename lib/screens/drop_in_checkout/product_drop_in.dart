@@ -185,7 +185,7 @@ class ProductDropIn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Drop In'),
+        title: const Text('Product'),
         backgroundColor: ThemeColors.bgPurple,
       ),
       body: Padding(

@@ -185,11 +185,7 @@ class MakePaymentFields extends StatelessWidget {
       }
     });
 
-    if (areRequiredInputsFilled && areFormInputsValid) {
-      return true;
-    } else {
-      return false;
-    }
+    return areRequiredInputsFilled && areFormInputsValid;
   }
 
   void submitPayment(BuildContext context) async {
@@ -397,7 +393,7 @@ class _TextBoxFormFieldState extends State<TextBoxFormField> {
 
     if (validate(text)) {
       // return null if the text is valid
-      return Colors.grey;
+      return ThemeColors.normal;
     } else {
       return ThemeColors.errorRed;
     }
