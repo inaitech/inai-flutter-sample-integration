@@ -98,6 +98,9 @@ class ValidateFields extends StatelessWidget {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("payment_method_options")) {
       paymentMethods = responseBody["payment_method_options"];
+      paymentMethods.removeWhere((element) =>
+          element["rail_code"] == "google_pay" ||
+          element["rail_code"] == "apple_pay");
     }
     return paymentMethods;
   }
