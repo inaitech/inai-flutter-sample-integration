@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/get_card_info/get_card_info.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/save_payment_method/save_payment_method.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/validate_fields/validate_fields.dart';
-import 'package:flutter_sample_integration/screens/product.dart';
+import 'get_card_info/get_card_info.dart';
+import 'save_payment_method/save_payment_method.dart';
+import 'validate_fields/validate_fields.dart';
+import '../product.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);

@@ -137,6 +137,18 @@ class SavePaymentMethodFields extends StatelessWidget {
             CheckboxFormField(onChangeCallback: (checked) {
               formData[key] = checked;
             })
+          else if (fieldType == "select")
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                CountrySelector(
+                    formFieldMap: formFieldMap,
+                    onChangeCallback: (text, fieldValidation) {
+                      formData[key] = text;
+                      formValidationTracker.addEntries(fieldValidation.entries);
+                    })
+              ],
+            )
           else
             Column(
               children: [
@@ -147,7 +159,7 @@ class SavePaymentMethodFields extends StatelessWidget {
                     formData[key] = text;
                     formValidationTracker.addEntries(fieldValidation.entries);
                   },
-                ),
+                )
               ],
             )
         ],
@@ -157,10 +169,7 @@ class SavePaymentMethodFields extends StatelessWidget {
 
   void navigateBackToHome(BuildContext context) {
     Navigator.popUntil(context, (route) {
-      if (route.isFirst) {
-        return true;
-      }
-      return false;
+      return route.isFirst;
     });
   }
 
@@ -177,11 +186,7 @@ class SavePaymentMethodFields extends StatelessWidget {
       }
     });
 
-    if (areRequiredInputsFilled && areFormInputsValid) {
-      return true;
-    } else {
-      return false;
-    }
+    return areRequiredInputsFilled && areFormInputsValid;
   }
 
   void submitPayment(BuildContext context) async {
@@ -285,6 +290,61 @@ class CheckboxFormFieldState extends State<CheckboxFormField> {
 typedef TextboxOnChangeCallback = void Function(
     String text, Map<String, dynamic> fieldValidation);
 
+class CountrySelector extends StatefulWidget {
+  const CountrySelector(
+      {Key? key, required this.formFieldMap, required this.onChangeCallback})
+      : super(key: key);
+
+  final Map<String, dynamic> formFieldMap;
+  final TextboxOnChangeCallback onChangeCallback;
+
+  @override
+  State<CountrySelector> createState() => _CountrySelectorState();
+}
+
+class _CountrySelectorState extends State<CountrySelector> {
+  late String key;
+  late bool required;
+  late List<dynamic> countries;
+  late String dropDownValue;
+  late Map<String, dynamic>? fieldValidationTracker;
+
+  @override
+  void initState() {
+    super.initState();
+    key = widget.formFieldMap["name"];
+    countries = [];
+    countries.addAll(widget.formFieldMap["data"]["values"]);
+    dropDownValue = countries.first["label"];
+    fieldValidationTracker = {
+      key: {"isNonEmpty": false, "isValid": false}
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton(
+      value: dropDownValue,
+      items: countries
+          .map((countryData) => DropdownMenuItem(
+                value: countryData["label"],
+                child: Text(countryData["label"]),
+              ))
+          .toList(),
+      onChanged: (country) {
+        setState(() {
+          dropDownValue = country as String;
+          fieldValidationTracker![key]["isNonEmpty"] = true;
+          fieldValidationTracker![key]["isValid"] = true;
+        });
+        var countryValue = countries.firstWhere(
+            (countryData) => countryData["label"] == country)["value"];
+        widget.onChangeCallback(countryValue, fieldValidationTracker!);
+      },
+    );
+  }
+}
+
 class TextBoxFormField extends StatefulWidget {
   const TextBoxFormField(
       {Key? key, required this.formFieldMap, required this.onChangeCallback})
@@ -339,7 +399,7 @@ class _TextBoxFormFieldState extends State<TextBoxFormField> {
 
     if (validate(text)) {
       // return null if the text is valid
-      return Colors.grey;
+      return ThemeColors.normal;
     } else {
       return ThemeColors.errorRed;
     }

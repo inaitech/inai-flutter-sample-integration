@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sample_integration/contants.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/validate_fields/validate_fields_fields.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../../../contants.dart';
+import 'validate_fields_fields.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -98,6 +98,9 @@ class ValidateFields extends StatelessWidget {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("payment_method_options")) {
       paymentMethods = responseBody["payment_method_options"];
+      paymentMethods.removeWhere((element) =>
+          element["rail_code"] == "google_pay" ||
+          element["rail_code"] == "apple_pay");
     }
     return paymentMethods;
   }

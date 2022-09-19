@@ -1,8 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sample_integration/screens/drop_in_checkout/product_drop_in.dart';
-
 import 'headless_checkout/headless_checkout.dart';
+import 'drop_in_checkout/product_drop_in.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
