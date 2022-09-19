@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../contants.dart';
-import 'make_payment_fields.dart';
+import 'save_payment_method_fields.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -20,8 +20,8 @@ void debugPrint(String message) {
 
 String? orderId;
 
-class MakePayment extends StatelessWidget {
-  const MakePayment({Key? key}) : super(key: key);
+class SavePaymentMethod extends StatelessWidget {
+  const SavePaymentMethod({Key? key}) : super(key: key);
 
   Future<String?> prepareOrder() async {
     String authData = "${Constants.token}:${Constants.password}";
@@ -50,6 +50,7 @@ class MakePayment extends StatelessWidget {
       "amount": Constants.amount,
       "currency": Constants.currency,
       "customer": customer,
+      "capture_method": "MANUAL",
       "metadata": {"test_order_id": "1234"}
     };
 
@@ -71,7 +72,7 @@ class MakePayment extends StatelessWidget {
     if (responseBody.containsKey("id")) {
       generatedOrderId = responseBody["id"];
 
-      if (savedCustomerId != null) {
+      if (savedCustomerId == null) {
         //  Save the new customer id so we can reuse it later
         String customerId = responseBody["customer_id"];
         await prefs.setString("customerId-${Constants.token}", customerId);
@@ -116,7 +117,7 @@ class MakePayment extends StatelessWidget {
 
   void openPaymentMethodFields(dynamic paymentMethod, BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => MakePaymentFields(
+        builder: (context) => SavePaymentMethodFields(
               paymentMethod: paymentMethod,
               orderId: orderId!,
             )));

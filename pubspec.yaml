@@ -13,6 +13,7 @@ dependencies:
 
 
   http: ^0.13.4
+  shared_preferences: ^2.0.15
 
   inai_flutter_sdk:
       path: ../inai_flutter_sdk
@@ -25,3 +26,8 @@ flutter:
   assets:
     - assets/inai-white.png
     - assets/tshirt.jpeg
+    - assets/americanexpress.png
+    - assets/discover.png
+    - assets/mastercard.png
+    - assets/visa.png
+    - unknown_card.png

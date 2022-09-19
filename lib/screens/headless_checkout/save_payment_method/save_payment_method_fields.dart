@@ -50,8 +50,8 @@ void showAlert(BuildContext context, String message,
   );
 }
 
-class MakePaymentFields extends StatelessWidget {
-  MakePaymentFields({Key? key, this.paymentMethod, required this.orderId})
+class SavePaymentMethodFields extends StatelessWidget {
+  SavePaymentMethodFields({Key? key, this.paymentMethod, required this.orderId})
       : super(key: key);
 
   final dynamic paymentMethod;
@@ -64,8 +64,8 @@ class MakePaymentFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title:
-              Text("${sanitizeRailCode(paymentMethod["rail_code"])} Payment"),
+          title: Text(
+              "Save ${sanitizeRailCode(paymentMethod["rail_code"])} Payment Method"),
           backgroundColor: ThemeColors.bgPurple,
         ),
         body: SafeArea(
@@ -79,13 +79,14 @@ class MakePaymentFields extends StatelessWidget {
                       ...<Widget>[
                         for (var formField
                             in paymentMethod["form_fields"] as List<dynamic>)
-                          renderFormField(formField)
+                          if (formField["name"] != "save_card")
+                            renderFormField(formField)
                       ],
-                      renderCheckoutButton(context)
+                      renderSaveButton(context)
                     ])))));
   }
 
-  Container renderCheckoutButton(BuildContext context) {
+  Container renderSaveButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 20.0),
       child: ElevatedButton(
@@ -101,7 +102,7 @@ class MakePaymentFields extends StatelessWidget {
           }
         },
         child: const Text(
-          "Checkout",
+          "Save",
           style: TextStyle(fontSize: 18),
         ),
       ),
@@ -195,14 +196,14 @@ class MakePaymentFields extends StatelessWidget {
     String resultTitle = "";
     switch (result.status) {
       case InaiStatus.success:
-        resultTitle = "Payment Success! ";
+        resultTitle = "Save Payment Method Success! ";
         break;
       case InaiStatus.failed:
-        resultTitle = "Payment Failed!";
+        resultTitle = "Save Payment Method Failed!";
         break;
 
       case InaiStatus.canceled:
-        resultTitle = "Payment Canceled!";
+        resultTitle = "Save Payment Method Canceled!";
         break;
     }
 
@@ -228,9 +229,14 @@ class MakePaymentFields extends StatelessWidget {
 
       for (var paymentField in paymentFields) {
         String paymentFieldName = paymentField["name"];
-        paymentDetailFormFields.add(
-            {"name": paymentFieldName, "value": formData[paymentFieldName]});
+        if (paymentFieldName != "save_card") {
+          paymentDetailFormFields.add(
+              {"name": paymentFieldName, "value": formData[paymentFieldName]});
+        }
       }
+
+      //  For save
+      paymentDetailFormFields.add({"name": "save_card", "value": true});
 
       Map<String, dynamic> paymentDetails = {"fields": paymentDetailFormFields};
 
