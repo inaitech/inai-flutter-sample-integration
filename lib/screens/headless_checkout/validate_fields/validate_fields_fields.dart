@@ -69,10 +69,7 @@ void showAlert(BuildContext context, String message,
 
 void navigateBackToHome(BuildContext context) {
   Navigator.popUntil(context, (route) {
-    if (route.isFirst) {
-      return true;
-    }
-    return false;
+    return route.isFirst;
   });
 }
 

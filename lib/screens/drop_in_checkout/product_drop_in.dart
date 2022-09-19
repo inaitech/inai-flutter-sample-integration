@@ -65,10 +65,7 @@ void showAlert(BuildContext context, String message,
 
 void navigateBackToHome(BuildContext context) {
   Navigator.popUntil(context, (route) {
-    if (route.isFirst) {
-      return true;
-    }
-    return false;
+    return route.isFirst;
   });
 }
 
@@ -188,7 +185,7 @@ class ProductDropIn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Drop In'),
+        title: const Text('Product'),
         backgroundColor: ThemeColors.bgPurple,
       ),
       body: Padding(
