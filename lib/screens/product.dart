@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/make_payment/make_payment.dart';
+import 'headless_checkout/make_payment/make_payment.dart';
+import 'headless_checkout/pay_with_saved_payment_method/pay_with_saved_payment_method.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
 }
 
 class Product extends StatelessWidget {
-  const Product({Key? key}) : super(key: key);
+  const Product({Key? key, required this.mode}) : super(key: key);
 
+  final String mode;
   void debugPrint(String message) {
     if (kDebugMode) {
       print(message);
@@ -66,8 +68,14 @@ This product is made with Primegreen, a series of high-performance recycled mate
                   minimumSize: const Size.fromHeight(50), // NEW
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const MakePayment()));
+                  if (mode == "payWithSavedMethod") {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            const PayWithSavedPaymentMethod()));
+                  } else {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const MakePayment()));
+                  }
                 },
                 child: const Text('Buy Now', style: TextStyle(fontSize: 18)),
               ),

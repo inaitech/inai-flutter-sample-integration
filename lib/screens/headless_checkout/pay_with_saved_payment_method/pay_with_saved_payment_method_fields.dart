@@ -50,8 +50,9 @@ void showAlert(BuildContext context, String message,
   );
 }
 
-class SavePaymentMethodFields extends StatelessWidget {
-  SavePaymentMethodFields({Key? key, this.paymentMethod, required this.orderId})
+class PayWithSavedPaymentMethodFields extends StatelessWidget {
+  PayWithSavedPaymentMethodFields(
+      {Key? key, this.paymentMethod, required this.orderId})
       : super(key: key);
 
   final dynamic paymentMethod;
@@ -64,8 +65,7 @@ class SavePaymentMethodFields extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-              "Save ${sanitizeRailCode(paymentMethod["rail_code"])} Payment Method"),
+          title: const Text("Payment"),
           backgroundColor: ThemeColors.bgPurple,
         ),
         body: SafeArea(
@@ -82,11 +82,11 @@ class SavePaymentMethodFields extends StatelessWidget {
                           if (formField["name"] != "save_card")
                             renderFormField(formField)
                       ],
-                      renderSaveButton(context)
+                      renderSubmitButton(context)
                     ])))));
   }
 
-  Container renderSaveButton(BuildContext context) {
+  Container renderSubmitButton(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(top: 20.0),
       child: ElevatedButton(
@@ -101,9 +101,9 @@ class SavePaymentMethodFields extends StatelessWidget {
             showAlert(context, "Please enter valid details");
           }
         },
-        child: const Text(
-          "Save",
-          style: TextStyle(fontSize: 18),
+        child: Text(
+          "Pay with ${sanitizeRailCode(paymentMethod["rail_code"])}",
+          style: const TextStyle(fontSize: 18),
         ),
       ),
     );
@@ -137,18 +137,6 @@ class SavePaymentMethodFields extends StatelessWidget {
             CheckboxFormField(onChangeCallback: (checked) {
               formData[key] = checked;
             })
-          else if (fieldType == "select")
-            Column(
-              children: [
-                const SizedBox(height: 10),
-                CountrySelector(
-                    formFieldMap: formFieldMap,
-                    onChangeCallback: (text, fieldValidation) {
-                      formData[key] = text;
-                      formValidationTracker.addEntries(fieldValidation.entries);
-                    })
-              ],
-            )
           else
             Column(
               children: [
@@ -159,7 +147,7 @@ class SavePaymentMethodFields extends StatelessWidget {
                     formData[key] = text;
                     formValidationTracker.addEntries(fieldValidation.entries);
                   },
-                )
+                ),
               ],
             )
         ],
@@ -196,14 +184,14 @@ class SavePaymentMethodFields extends StatelessWidget {
     String resultTitle = "";
     switch (result.status) {
       case InaiStatus.success:
-        resultTitle = "Save Payment Method Success! ";
+        resultTitle = "Pay with Saved Payment Method Success! ";
         break;
       case InaiStatus.failed:
-        resultTitle = "Save Payment Method Failed!";
+        resultTitle = "Pay with Saved Payment Method Failed!";
         break;
 
       case InaiStatus.canceled:
-        resultTitle = "Save Payment Method Canceled!";
+        resultTitle = "Pay with Saved Payment Method Canceled!";
         break;
     }
 
@@ -229,16 +217,14 @@ class SavePaymentMethodFields extends StatelessWidget {
 
       for (var paymentField in paymentFields) {
         String paymentFieldName = paymentField["name"];
-        if (paymentFieldName != "save_card") {
-          paymentDetailFormFields.add(
-              {"name": paymentFieldName, "value": formData[paymentFieldName]});
-        }
+        paymentDetailFormFields.add(
+            {"name": paymentFieldName, "value": formData[paymentFieldName]});
       }
 
-      //  For save
-      paymentDetailFormFields.add({"name": "save_card", "value": true});
-
-      Map<String, dynamic> paymentDetails = {"fields": paymentDetailFormFields};
+      Map<String, dynamic> paymentDetails = {
+        "fields": paymentDetailFormFields,
+        "paymentMethodId": paymentMethod["paymentMethodId"]
+      };
 
       final result = await checkout.makePayment(
           paymentMethodOption: railCode,
@@ -289,61 +275,6 @@ class CheckboxFormFieldState extends State<CheckboxFormField> {
 
 typedef TextboxOnChangeCallback = void Function(
     String text, Map<String, dynamic> fieldValidation);
-
-class CountrySelector extends StatefulWidget {
-  const CountrySelector(
-      {Key? key, required this.formFieldMap, required this.onChangeCallback})
-      : super(key: key);
-
-  final Map<String, dynamic> formFieldMap;
-  final TextboxOnChangeCallback onChangeCallback;
-
-  @override
-  State<CountrySelector> createState() => _CountrySelectorState();
-}
-
-class _CountrySelectorState extends State<CountrySelector> {
-  late String key;
-  late bool required;
-  late List<dynamic> countries;
-  late String dropDownValue;
-  late Map<String, dynamic>? fieldValidationTracker;
-
-  @override
-  void initState() {
-    super.initState();
-    key = widget.formFieldMap["name"];
-    countries = [];
-    countries.addAll(widget.formFieldMap["data"]["values"]);
-    dropDownValue = countries.first["label"];
-    fieldValidationTracker = {
-      key: {"isNonEmpty": false, "isValid": false}
-    };
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButton(
-      value: dropDownValue,
-      items: countries
-          .map((countryData) => DropdownMenuItem(
-                value: countryData["label"],
-                child: Text(countryData["label"]),
-              ))
-          .toList(),
-      onChanged: (country) {
-        setState(() {
-          dropDownValue = country as String;
-          fieldValidationTracker![key]["isNonEmpty"] = true;
-          fieldValidationTracker![key]["isValid"] = true;
-        });
-        var countryValue = countries.firstWhere(
-            (countryData) => countryData["label"] == country)["value"];
-        widget.onChangeCallback(countryValue, fieldValidationTracker!);
-      },
-    );
-  }
-}
 
 class TextBoxFormField extends StatefulWidget {
   const TextBoxFormField(

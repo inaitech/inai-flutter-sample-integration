@@ -26,3 +26,8 @@ flutter:
   assets:
     - assets/inai-white.png
     - assets/tshirt.jpeg
+    - assets/americanexpress.png
+    - assets/discover.png
+    - assets/mastercard.png
+    - assets/visa.png
+    - unknown_card.png

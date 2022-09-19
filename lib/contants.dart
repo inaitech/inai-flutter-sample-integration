@@ -1,10 +1,9 @@
 class Constants {
-  static const String token =
-      "sbx_ci_7kCbmGnJBYmC4TwUz1FA3FsWPnRKQG3gzCX4R87VDTsS";
+  static const String token = "46a7cf2e-15e3-4e77-bcbc-17681f18a605";
   static const String password =
-      "sbx_cs_HGGbrw5QTX9Y4EaqCk8ssa3CoUk5cumU2w1omXHfBqmk";
-  static const String baseUrl = "https://api.inai.io/v1";
-  static const String country = "USA";
+      "cs_CHVkQKRCTPf1fiuGq94CJG5MBkLWLqPJKsiNssWTQcDQ";
+  static const String baseUrl = "https://backend-dev.inai-dev.com/v1";
+  static const String country = "DEU";
   static const String amount = "100";
-  static const String currency = "USD";
+  static const String currency = "EUR";
 }
