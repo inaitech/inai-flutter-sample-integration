@@ -1,0 +1,33 @@
+name: flutter_sample_integration
+description: Inai Flutter Sample
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.6 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  http: ^0.13.4
+  shared_preferences: ^2.0.15
+
+  inai_flutter_sdk:
+      path: ../inai_flutter_sdk
+
+dev_dependencies:
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/inai-white.png
+    - assets/tshirt.jpeg
+    - assets/americanexpress.png
+    - assets/discover.png
+    - assets/mastercard.png
+    - assets/visa.png
+    - unknown_card.png
