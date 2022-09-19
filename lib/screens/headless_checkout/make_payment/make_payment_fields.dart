@@ -6,6 +6,8 @@ import '../../../contants.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
+  static const Color errorRed = Colors.red;
+  static const Color normal = Colors.grey;
 }
 
 void debugPrint(String message) {
@@ -56,6 +58,7 @@ class MakePaymentFields extends StatelessWidget {
   final String orderId;
 
   final Map<String, dynamic> formData = {};
+  final Map<String, dynamic> formValidationTracker = {};
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +94,11 @@ class MakePaymentFields extends StatelessWidget {
           minimumSize: const Size.fromHeight(50), // NEW
         ),
         onPressed: () {
-          submitPayment(context);
+          if (validateForm()) {
+            submitPayment(context);
+          } else {
+            showAlert(context, "Please enter valid details");
+          }
         },
         child: const Text(
           "Checkout",
@@ -129,24 +136,29 @@ class MakePaymentFields extends StatelessWidget {
             CheckboxFormField(onChangeCallback: (checked) {
               formData[key] = checked;
             })
+          else if (fieldType == "select")
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                CountrySelector(
+                    formFieldMap: formFieldMap,
+                    onChangeCallback: (text, fieldValidation) {
+                      formData[key] = text;
+                      formValidationTracker.addEntries(fieldValidation.entries);
+                    })
+              ],
+            )
           else
             Column(
               children: [
                 const SizedBox(height: 10),
-                TextFormField(
-                    autocorrect: false,
-                    initialValue: formData[key],
-                    style: const TextStyle(fontSize: 16.0),
-                    minLines: lines,
-                    maxLines: lines,
-                    decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 0),
-                        hintText: hint),
-                    onChanged: (text) {
-                      formData[key] = text;
-                    }),
+                TextBoxFormField(
+                  formFieldMap: formFieldMap,
+                  onChangeCallback: (text, fieldValidation) {
+                    formData[key] = text;
+                    formValidationTracker.addEntries(fieldValidation.entries);
+                  },
+                )
               ],
             )
         ],
@@ -156,11 +168,24 @@ class MakePaymentFields extends StatelessWidget {
 
   void navigateBackToHome(BuildContext context) {
     Navigator.popUntil(context, (route) {
-      if (route.isFirst) {
-        return true;
-      }
-      return false;
+      return route.isFirst;
     });
+  }
+
+  bool validateForm() {
+    var areFormInputsValid = true;
+    var areRequiredInputsFilled = true;
+    formValidationTracker.entries.forEach((fieldValidation) {
+      if (fieldValidation.value["isNonEmpty"] == false) {
+        areRequiredInputsFilled = false;
+      }
+
+      if (fieldValidation.value["isValid"] == false) {
+        areFormInputsValid = false;
+      }
+    });
+
+    return areRequiredInputsFilled && areFormInputsValid;
   }
 
   void submitPayment(BuildContext context) async {
@@ -252,6 +277,221 @@ class CheckboxFormFieldState extends State<CheckboxFormField> {
             _isChecked = checked!;
             widget.onChangeCallback(checked);
           });
+        });
+  }
+}
+
+typedef TextboxOnChangeCallback = void Function(
+    String text, Map<String, dynamic> fieldValidation);
+
+class CountrySelector extends StatefulWidget {
+  const CountrySelector(
+      {Key? key, required this.formFieldMap, required this.onChangeCallback})
+      : super(key: key);
+
+  final Map<String, dynamic> formFieldMap;
+  final TextboxOnChangeCallback onChangeCallback;
+
+  @override
+  State<CountrySelector> createState() => _CountrySelectorState();
+}
+
+class _CountrySelectorState extends State<CountrySelector> {
+  late String key;
+  late bool required;
+  late List<dynamic> countries;
+  late String dropDownValue;
+  late Map<String, dynamic>? fieldValidationTracker;
+
+  @override
+  void initState() {
+    super.initState();
+    key = widget.formFieldMap["name"];
+    countries = [];
+    countries.addAll(widget.formFieldMap["data"]["values"]);
+    dropDownValue = countries.first["label"];
+    fieldValidationTracker = {
+      key: {"isNonEmpty": false, "isValid": false}
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButton(
+      value: dropDownValue,
+      items: countries
+          .map((countryData) => DropdownMenuItem(
+                value: countryData["label"],
+                child: Text(countryData["label"]),
+              ))
+          .toList(),
+      onChanged: (country) {
+        setState(() {
+          dropDownValue = country as String;
+          fieldValidationTracker![key]["isNonEmpty"] = true;
+          fieldValidationTracker![key]["isValid"] = true;
+        });
+        var countryValue = countries.firstWhere(
+            (countryData) => countryData["label"] == country)["value"];
+        widget.onChangeCallback(countryValue, fieldValidationTracker!);
+      },
+    );
+  }
+}
+
+class TextBoxFormField extends StatefulWidget {
+  const TextBoxFormField(
+      {Key? key, required this.formFieldMap, required this.onChangeCallback})
+      : super(key: key);
+  final Map<String, dynamic> formFieldMap;
+  final TextboxOnChangeCallback onChangeCallback;
+
+  @override
+  State<TextBoxFormField> createState() => _TextBoxFormFieldState();
+}
+
+class _TextBoxFormFieldState extends State<TextBoxFormField> {
+  late String key;
+  late String hint;
+  late int maxLength;
+  late int minLength;
+  late String inputRegex;
+  late bool required;
+  late Color _borderColor;
+  late Map<String, dynamic> validations;
+  late Map<String, dynamic>? fieldValidationTracker;
+
+  final _controller = TextEditingController();
+  String cardExpiry = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _borderColor = ThemeColors.normal;
+    key = widget.formFieldMap["name"];
+
+    if (widget.formFieldMap.containsKey("placeholder")) {
+      if (widget.formFieldMap["placeholder"] != null) {
+        hint = widget.formFieldMap["placeholder"];
+      }
+    }
+
+    validations =
+        widget.formFieldMap["validations"] as Map<String, dynamic>? ?? {};
+    minLength = validations["min_length"] as int? ?? 0;
+    maxLength = validations["max_length"] as int? ?? 0;
+    inputRegex = validations["input_mask_regex"] as String? ?? '.*';
+    required = validations["required"] as bool? ?? false;
+    fieldValidationTracker = {
+      key: {"isNonEmpty": false, "isValid": false}
+    };
+  }
+
+  Color getBorderColor() {
+    // at any time, we can get the text from _controller.value.text
+    final text = _controller.value.text;
+
+    if (validate(text)) {
+      // return null if the text is valid
+      return ThemeColors.normal;
+    } else {
+      return ThemeColors.errorRed;
+    }
+  }
+
+  bool validate(String text) {
+    //  Check for empty text
+    if (required && text.isEmpty) {
+      fieldValidationTracker![key]["isNonEmpty"] = false;
+      return false;
+    }
+
+    //  Check if length constraints are satisfied
+    if (minLength != 0 && maxLength != 0) {
+      if (text.length < minLength || text.length > maxLength) {
+        fieldValidationTracker![key]["isValid"] = false;
+        return false;
+      }
+    }
+
+    //  Match input text with pattern
+    RegExp regex = RegExp(inputRegex);
+    Iterable matches = regex.allMatches(text);
+    if (matches.isEmpty) {
+      fieldValidationTracker![key]["isValid"] = false;
+      return false;
+    }
+
+    // Valid Input
+    fieldValidationTracker![key]["isNonEmpty"] = true;
+    fieldValidationTracker![key]["isValid"] = true;
+    return true;
+  }
+
+  String formattedCardExpiry(String expiryDate) {
+    var formattedExpiryDate = "";
+    // Check necessary so that we format fresh inputs and not the same string.
+    //  because once we set the  TextInput with formatted string onChangeText will be
+    //  triggered again for the formatted string.
+    if (expiryDate != cardExpiry) {
+      //  Append a slash if length is 2 and slash is not yet added.
+      if (expiryDate.length == 2 && !cardExpiry.endsWith('/')) {
+        formattedExpiryDate = "$expiryDate/";
+      }
+      //  This case handles a delete operation.
+      //  For Ex. InputText = 12 and formattedExpiryDate = 12/ then a delete
+      //  operation deletes the 2 along with the slash.
+      else if (expiryDate.length == 2 && cardExpiry.endsWith('/')) {
+        //  Valid month check
+        if (int.parse(expiryDate) <= 12) {
+          formattedExpiryDate = expiryDate.substring(0, 1);
+        } else {
+          formattedExpiryDate = '';
+        }
+      }
+      //  If input is the first character and its above 1 (for ex: 5)
+      //  then we assume its the 5th month and format it as 05
+      else if (expiryDate.length == 1) {
+        if (int.parse(expiryDate) > 1) {
+          formattedExpiryDate = "0$expiryDate/";
+        } else {
+          formattedExpiryDate = expiryDate;
+        }
+      } else {
+        formattedExpiryDate = expiryDate;
+      }
+    }
+
+    cardExpiry = formattedExpiryDate;
+    return formattedExpiryDate;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+        autocorrect: false,
+        style: const TextStyle(fontSize: 16.0),
+        minLines: 1,
+        maxLines: 1,
+        controller: _controller,
+        decoration: InputDecoration(
+            focusedBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: _borderColor)),
+            enabledBorder:
+                OutlineInputBorder(borderSide: BorderSide(color: _borderColor)),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 10.0, vertical: 0),
+            hintText: hint),
+        onChanged: (text) {
+          setState(() {
+            if (key == "expiry") {
+              _controller.text = formattedCardExpiry(text);
+              _controller.selection =
+                  TextSelection.collapsed(offset: _controller.text.length);
+            }
+            _borderColor = getBorderColor();
+          });
+          widget.onChangeCallback(text, fieldValidationTracker!);
         });
   }
 }

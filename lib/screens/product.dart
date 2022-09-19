@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/make_payment/make_payment.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/pay_with_saved_payment_method/pay_with_saved_payment_method.dart';
+import 'headless_checkout/make_payment/make_payment.dart';
+import 'headless_checkout/pay_with_saved_payment_method/pay_with_saved_payment_method.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
