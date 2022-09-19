@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,41 @@ String cardNumber = '';
 Image? cardBrandLogo;
 
 typedef AlertFinishCallback = void Function();
+
+class Debounce {
+  Duration delay;
+  Timer? _timer;
+
+  Debounce(
+    this.delay,
+  );
+
+  call(void Function() callback) {
+    _timer?.cancel();
+    _timer = Timer(delay, callback);
+  }
+
+  dispose() {
+    _timer?.cancel();
+  }
+}
+
+void hideProgressIndicator(BuildContext context) {
+  Navigator.pop(context);
+}
+
+void showProgressIndicator(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Center(
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [Center(child: CircularProgressIndicator())]),
+      );
+    },
+  );
+}
 
 void showAlert(BuildContext context, String message,
     {String title = "Alert", AlertFinishCallback? callback}) {
@@ -60,15 +96,19 @@ void showAlert(BuildContext context, String message,
 
 void navigateBackToHome(BuildContext context) {
   Navigator.popUntil(context, (route) {
-    if (route.isFirst) {
-      return true;
-    }
-    return false;
+    return route.isFirst;
   });
 }
 
-class GetCardInfo extends StatelessWidget {
+class GetCardInfo extends StatefulWidget {
   const GetCardInfo({Key? key}) : super(key: key);
+
+  @override
+  State<GetCardInfo> createState() => _GetCardInfoState();
+}
+
+class _GetCardInfoState extends State<GetCardInfo> {
+  final Debounce _debounce = Debounce(const Duration(milliseconds: 200));
 
   prepareOrder() async {
     String authData = "${Constants.token}:${Constants.password}";
@@ -117,8 +157,6 @@ class GetCardInfo extends StatelessWidget {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("id")) {
       generatedOrderId = responseBody["id"];
-      debugPrint(generatedOrderId!);
-
       if (savedCustomerId != null) {
         //  Save the new customer id so we can reuse it later
         String customerId = responseBody["customer_id"];
@@ -148,43 +186,66 @@ class GetCardInfo extends StatelessWidget {
     return null;
   }
 
-  void submitPayment(BuildContext context) async {
-    orderId = await prepareOrder();
-    var result = await inaiGetCardInfo(context);
+  void getCardInfo(BuildContext context, {bool showResult = false}) async {
+    // Only process for 6 digits or above
+    if (cardNumber.length < 6) {
+      return;
+    }
 
+    if (showResult) {
+      showProgressIndicator(context);
+    }
+
+    //  Generate order id only once
+    //  Same order id can be reused for getCardInfo
+    orderId ??= await prepareOrder();
+
+    InaiResult result = await inaiGetCardInfo(context);
     String resultStr = result.data.toString();
     String resultTitle = "";
     switch (result.status) {
       case InaiStatus.success:
-        resultTitle = "Payment Success! ";
-        var data = result.data;
-        if (data.card && data.card.brand) {
-          loadCardBrandImage(data.card.brand.toLowerCase());
+        resultTitle = "Get Card Info Success";
+        Map<String, dynamic> data = result.data;
+
+        if (data.containsKey("card")) {
+          Map<String, dynamic> card = data["card"];
+          if (card.containsKey("brand")) {
+            loadCardBrandImage(card["brand"].toString().toLowerCase());
+          }
         }
         break;
-      case InaiStatus.failed:
-        resultTitle = "Payment Failed!";
-        break;
-
-      case InaiStatus.canceled:
-        resultTitle = "Payment Canceled!";
+      default:
+        resultTitle = "Get Card Info Failed!";
         break;
     }
 
-    showAlert(context, resultStr, title: resultTitle, callback: () {
-      navigateBackToHome(context);
-    });
+    if (showResult) {
+      hideProgressIndicator(context);
+
+      showAlert(context, resultStr, title: resultTitle);
+    }
   }
 
   void loadCardBrandImage(String cardBrand) {
-    switch (cardBrand) {
-      case "visa":
-        cardBrandLogo = const Image(image: AssetImage('assets/visa.png'));
-        break;
-      default:
-        cardBrandLogo =
-            const Image(image: AssetImage('assets/unknown_card.png'));
+    cardBrand = cardBrand.replaceAll(RegExp(r'[^\w\s]+'), '');
+
+    String cardImage = "unknown_card.png";
+    if (["americanexpress", "discover", "mastercard", "visa"]
+        .contains(cardBrand)) {
+      cardImage = "$cardBrand.png";
     }
+
+    setState(() {
+      cardBrandLogo = Image(image: AssetImage("assets/$cardImage"));
+    });
+  }
+
+  @override
+  void initState() {
+    cardBrandLogo = null;
+    cardNumber = "";
+    super.initState();
   }
 
   @override
@@ -201,9 +262,24 @@ class GetCardInfo extends StatelessWidget {
               child: TextField(
                 onChanged: (text) {
                   cardNumber = text;
+                  _debounce(() {
+                    if (cardNumber.length >= 6) {
+                      getCardInfo(context);
+                    } else {
+                      setState(() {
+                        cardBrandLogo = null;
+                      });
+                    }
+                  });
                 },
                 decoration: InputDecoration(
-                    suffixIcon: cardBrandLogo,
+                    suffixIconConstraints:
+                        const BoxConstraints(maxHeight: 40, maxWidth: 60),
+                    suffixIcon: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: cardBrandLogo,
+                    ),
+                    contentPadding: const EdgeInsets.only(left: 10, right: 10),
                     border: const OutlineInputBorder(),
                     hintText: 'Card number'),
               ),
@@ -215,17 +291,14 @@ class GetCardInfo extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: ThemeColors.bgPurple,
+                      primary: ThemeColors.bgPurple,
                       minimumSize: const Size.fromHeight(50), // NEW
                     ),
                     onPressed: () {
-                      if (cardNumber.length >= 6) {
-                        /// Only process for 6 digits or above
-                        submitPayment(context);
-                      }
+                      getCardInfo(context, showResult: true);
                     },
                     child: const Text(
-                      "Checkout",
+                      "Get Card Info",
                       style: TextStyle(fontSize: 18),
                     ),
                   )),
