@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sample_integration/screens/headless_checkout/save_payment_method/save_payment_method.dart';
-import 'package:flutter_sample_integration/screens/product.dart';
+import 'get_card_info/get_card_info.dart';
+import 'save_payment_method/save_payment_method.dart';
+import 'validate_fields/validate_fields.dart';
+import '../product.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -12,6 +14,8 @@ const flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
+  "GetCardInfo": "Get Card Info",
+  "ValidateFields": "Validate Fields"
 };
 
 class HeadlessCheckout extends StatelessWidget {
@@ -68,6 +72,15 @@ class FlowItem extends StatelessWidget {
             builder: (context) => const Product(mode: "payWithSavedMethod")));
         break;
 
+      case "GetCardInfo":
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => const GetCardInfo()));
+        break;
+
+      case "ValidateFields":
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const ValidateFields()));
+        break;
       //  Add more flows here
     }
   }

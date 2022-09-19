@@ -2,10 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../../../contants.dart';
-import 'make_payment_fields.dart';
+import 'validate_fields_fields.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -20,8 +20,8 @@ void debugPrint(String message) {
 
 String? orderId;
 
-class MakePayment extends StatelessWidget {
-  const MakePayment({Key? key}) : super(key: key);
+class ValidateFields extends StatelessWidget {
+  const ValidateFields({Key? key}) : super(key: key);
 
   Future<String?> prepareOrder() async {
     String authData = "${Constants.token}:${Constants.password}";
@@ -98,6 +98,9 @@ class MakePayment extends StatelessWidget {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("payment_method_options")) {
       paymentMethods = responseBody["payment_method_options"];
+      paymentMethods.removeWhere((element) =>
+          element["rail_code"] == "google_pay" ||
+          element["rail_code"] == "apple_pay");
     }
     return paymentMethods;
   }
@@ -116,7 +119,7 @@ class MakePayment extends StatelessWidget {
 
   void openPaymentMethodFields(dynamic paymentMethod, BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => MakePaymentFields(
+        builder: (context) => ValidateFieldsFields(
               paymentMethod: paymentMethod,
               orderId: orderId!,
             )));
