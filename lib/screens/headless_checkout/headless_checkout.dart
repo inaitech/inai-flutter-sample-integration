@@ -1,25 +1,31 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'get_card_info/get_card_info.dart';
 import 'save_payment_method/save_payment_method.dart';
 import 'validate_fields/validate_fields.dart';
 import '../product.dart';
+import 'google_pay/googlepay_payment_options.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
 }
 
 // Add more flows here
-const flows = {
+var flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
   "GetCardInfo": "Get Card Info",
-  "ValidateFields": "Validate Fields"
+  "ValidateFields": "Validate Fields",
+  "GooglePay" : "Google Pay"
 };
 
 class HeadlessCheckout extends StatelessWidget {
-  const HeadlessCheckout({Key? key}) : super(key: key);
+   const HeadlessCheckout({Key? key}) : super(key: key);
+
+
 
   void debugPrint(String message) {
     if (kDebugMode) {
@@ -29,6 +35,11 @@ class HeadlessCheckout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if(!Platform.isAndroid){
+      flows.remove("GooglePay");
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Headless Checkout'),
@@ -81,6 +92,11 @@ class FlowItem extends StatelessWidget {
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const ValidateFields()));
         break;
+
+      case "GooglePay":
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const GooglePayPaymentOptions()));
+          break;
       //  Add more flows here
     }
   }
