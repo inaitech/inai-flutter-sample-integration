@@ -4,6 +4,7 @@ import 'get_card_info/get_card_info.dart';
 import 'save_payment_method/save_payment_method.dart';
 import 'validate_fields/validate_fields.dart';
 import '../product.dart';
+import 'google_pay/googlepay_payment_options.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -15,7 +16,8 @@ const flows = {
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
   "GetCardInfo": "Get Card Info",
-  "ValidateFields": "Validate Fields"
+  "ValidateFields": "Validate Fields",
+  "GooglePay" : "Google Pay"
 };
 
 class HeadlessCheckout extends StatelessWidget {
@@ -81,6 +83,11 @@ class FlowItem extends StatelessWidget {
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const ValidateFields()));
         break;
+
+      case "GooglePay":
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const GooglePayPaymentOptions()));
+          break;
       //  Add more flows here
     }
   }
