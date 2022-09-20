@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'get_card_info/get_card_info.dart';
@@ -11,7 +13,7 @@ class ThemeColors {
 }
 
 // Add more flows here
-const flows = {
+var flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
@@ -21,7 +23,9 @@ const flows = {
 };
 
 class HeadlessCheckout extends StatelessWidget {
-  const HeadlessCheckout({Key? key}) : super(key: key);
+   const HeadlessCheckout({Key? key}) : super(key: key);
+
+
 
   void debugPrint(String message) {
     if (kDebugMode) {
@@ -31,6 +35,11 @@ class HeadlessCheckout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    if(!Platform.isAndroid){
+      flows.remove("GooglePay");
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Headless Checkout'),
