@@ -10,12 +10,6 @@ class ThemeColors {
   static const Color normal = Colors.grey;
 }
 
-void debugPrint(String message) {
-  if (kDebugMode) {
-    print(message);
-  }
-}
-
 typedef AlertFinishCallback = void Function();
 
 void showAlert(BuildContext context, String message, {String title = "Alert", AlertFinishCallback? callback}) {
@@ -89,7 +83,7 @@ class GooglePay extends StatelessWidget {
     }
   }
 
-  void showResult(BuildContext context, InaiResult result)  {
+  void showResult(BuildContext context, InaiResult result) {
     String resultStr = result.data.toString();
     String resultTitle = "";
     switch (result.status) {
@@ -135,15 +129,13 @@ class GooglePay extends StatelessWidget {
                             return Center(
                                 child: Text(
                                     style: const TextStyle(fontSize: 18), "Data load error. ${snapshot.error.toString()}"));
-                          } else if (snapshot.data?.userCanPay != true) {
+                          } else if (!(snapshot.data?.userCanPay ?? false)) {
                             return const Center(child: Text(style: TextStyle(fontSize: 18), "Google Pay Not Available"));
                           } else {
                             googlePayRequestData = snapshot.data;
                             return TextButton(
                                 style: ButtonStyle(backgroundColor: MaterialStateProperty.all(ThemeColors.bgPurple)),
-                                onPressed: () => {
-                                  onGooglePayPressed(context)
-                                  },
+                                onPressed: () => {onGooglePayPressed(context)},
                                 child: const Text(
                                   "Pay with Google Pay",
                                   style: TextStyle(color: Colors.white, fontSize: 16.0),

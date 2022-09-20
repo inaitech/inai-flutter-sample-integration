@@ -11,12 +11,6 @@ class ThemeColors {
   static const Color borderColor = Color(0xff888888);
 }
 
-void debugPrint(String message) {
-  if (kDebugMode) {
-    print(message);
-  }
-}
-
 String? orderId;
 
 class GooglePayPaymentOptions extends StatelessWidget{
