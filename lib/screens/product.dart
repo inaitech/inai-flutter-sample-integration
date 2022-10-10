@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'headless_checkout/make_payment/make_payment.dart';
 import 'headless_checkout/pay_with_saved_payment_method/pay_with_saved_payment_method.dart';
+import 'headless_checkout/apple_pay/apple_pay.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -72,6 +73,9 @@ This product is made with Primegreen, a series of high-performance recycled mate
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) =>
                             const PayWithSavedPaymentMethod()));
+                  } else if (mode == "applePay") {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const ApplePay()));
                   } else {
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => const MakePayment()));

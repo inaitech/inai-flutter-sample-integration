@@ -17,15 +17,14 @@ var flows = {
   "MakePayment": "Make Payment",
   "SavePaymentMethod": "Save A Payment Method",
   "MakePaymentWithSavedMethod": "Pay With Saved Payment Method",
+  "ApplePay": "Apple Pay",
+  "GooglePay": "Google Pay",
   "GetCardInfo": "Get Card Info",
-  "ValidateFields": "Validate Fields",
-  "GooglePay" : "Google Pay"
+  "ValidateFields": "Validate Fields"
 };
 
 class HeadlessCheckout extends StatelessWidget {
-   const HeadlessCheckout({Key? key}) : super(key: key);
-
-
+  const HeadlessCheckout({Key? key}) : super(key: key);
 
   void debugPrint(String message) {
     if (kDebugMode) {
@@ -35,8 +34,11 @@ class HeadlessCheckout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!Platform.isIOS) {
+      flows.remove("ApplePay");
+    }
 
-    if(!Platform.isAndroid){
+    if (!Platform.isAndroid) {
       flows.remove("GooglePay");
     }
 
@@ -94,9 +96,14 @@ class FlowItem extends StatelessWidget {
         break;
 
       case "GooglePay":
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const GooglePayPaymentOptions()));
-          break;
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const GooglePayPaymentOptions()));
+        break;
+
+      case "ApplePay":
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const Product(mode: "applePay")));
+        break;
       //  Add more flows here
     }
   }
