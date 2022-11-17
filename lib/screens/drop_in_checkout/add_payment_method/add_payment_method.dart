@@ -8,6 +8,8 @@ import 'package:inai_flutter_sdk/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../contants.dart';
 
+ const String paymentMethodIdKey = "paymentMethodId-${Constants.token}";
+
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
 }
@@ -165,9 +167,12 @@ class AddPaymentMethod extends StatelessWidget {
     String resultStr = result.data.toString();
     String resultTitle = "";
     switch (result.status) {
+
       case InaiStatus.success:
         resultTitle = "Payment Success! ";
+        storePaymentId(result);
         break;
+
       case InaiStatus.failed:
         resultTitle = "Payment Failed!";
         break;
@@ -179,6 +184,14 @@ class AddPaymentMethod extends StatelessWidget {
     showAlert(context, resultStr, title: resultTitle, callback: () {
       navigateBackToHome(context);
     });
+  }
+
+  void storePaymentId(InaiResult result) async {
+    // Obtain shared preferences.
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //  Save the new payment method id so we can reuse it later
+    String paymentMethodId = result.data["payment_method_id"];
+    await prefs.setString(paymentMethodIdKey, paymentMethodId);
   }
 
   @override
