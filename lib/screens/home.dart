@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sample_integration/screens/drop_in_checkout/pay_with_payment_method/pay_with_payment_method.dart';
 import 'headless_checkout/headless_checkout.dart';
 import 'drop_in_checkout/product_drop_in.dart';
 
@@ -59,7 +60,7 @@ class FlowItem extends StatelessWidget {
 
       case "DropInChekout":
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const ProductDropIn()));
+            MaterialPageRoute(builder: (context) => const PayWithPaymentMethod()));
         break;
       //  Add more flows here
     }
