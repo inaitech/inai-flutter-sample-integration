@@ -2,7 +2,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:inai_flutter_sdk/main.dart';
+import 'package:inai_flutter_sdk/inai_flutter_sdk.dart';
 import '../../../contants.dart';
 
 class ThemeColors {

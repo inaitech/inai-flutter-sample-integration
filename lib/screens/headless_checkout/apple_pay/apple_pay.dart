@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:inai_flutter_sdk/main.dart';
+import 'package:inai_flutter_sdk/inai_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../contants.dart';
 
