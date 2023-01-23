@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:inai_flutter_sdk/main.dart';
+import 'package:inai_flutter_sdk/inai_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../contants.dart';
+import '../../../contants.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
@@ -69,8 +69,8 @@ void navigateBackToHome(BuildContext context) {
   });
 }
 
-class ProductDropIn extends StatelessWidget {
-  const ProductDropIn({Key? key}) : super(key: key);
+class Checkout extends StatelessWidget {
+  const Checkout({Key? key}) : super(key: key);
 
   void debugPrint(String message) {
     if (kDebugMode) {
@@ -160,6 +160,7 @@ class ProductDropIn extends StatelessWidget {
     //  Generate order id only once
     //  Same order id can be reused for dropInCheckout.
     String? orderId = await prepareOrder();
+    print("Order Id: $orderId");
     hideProgressIndicator(context);
     InaiResult result = await inaiPresentCheckout(context, orderId!);
     String resultStr = result.data.toString();
