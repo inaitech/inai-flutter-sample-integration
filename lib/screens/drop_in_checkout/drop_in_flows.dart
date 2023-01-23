@@ -1,20 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sample_integration/screens/drop_in_checkout/drop_in_flows.dart';
-import 'headless_checkout/headless_checkout.dart';
+import 'package:flutter_sample_integration/screens/drop_in_checkout/add_payment_method/add_payment_method.dart';
+import 'package:flutter_sample_integration/screens/drop_in_checkout/checkout/checkout.dart';
+import 'package:flutter_sample_integration/screens/drop_in_checkout/pay_with_payment_method/pay_with_payment_method.dart';
 
 class ThemeColors {
   static const Color bgPurple = Color(0xff7673dd);
 }
 
 // Add more flows here
-const flows = {
-  "HeadlessCheckout": "Headless Checkout",
-  "DropInChekout": "Drop In Checkout"
+var flows = {
+  "DropInCheckout": "Checkout",
+  "AddPaymentMethod": "Add Payment Method",
+  "PayWithPaymentMethod": "Pay With Payment Method"
 };
 
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+class DropInFlows extends StatelessWidget {
+  const DropInFlows({Key? key}) : super(key: key);
 
   void debugPrint(String message) {
     if (kDebugMode) {
@@ -26,7 +28,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Home'),
+          title: const Text('Checkout'),
           backgroundColor: ThemeColors.bgPurple,
         ),
         body: SafeArea(
@@ -37,8 +39,8 @@ class Home extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                      for (var key in flows.keys) FlowItem(flowItemKey: key)
-                    ])))));
+                          for (var key in flows.keys) FlowItem(flowItemKey: key)
+                        ])))));
   }
 }
 
@@ -52,16 +54,21 @@ class FlowItem extends StatelessWidget {
 
   void openFlow(String flowKey, BuildContext context) {
     switch (flowKey) {
-      case "HeadlessCheckout":
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const HeadlessCheckout()));
+      case "DropInCheckout":
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const Checkout()));
         break;
 
-      case "DropInChekout":
+      case "AddPaymentMethod":
         Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const DropInFlows()));
+            MaterialPageRoute(builder: (context) => const AddPaymentMethod()));
         break;
-      //  Add more flows here
+
+      case "PayWithPaymentMethod":
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => const PayWithPaymentMethod()));
+        break;
+    //  Add more flows here
     }
   }
 
