@@ -155,7 +155,6 @@ class PayWithPaymentMethod extends StatelessWidget {
     String? savedPaymentMethodId =  prefs.getString(paymentMethodIdKey);
     if (savedPaymentMethodId != null) {
       showProgressIndicator(context);
-      print("Payment Method ID: ${savedPaymentMethodId}");
       //  Generate order id only once
       //  Same order id can be reused for dropInCheckout.
       String? orderId = await prepareOrder();

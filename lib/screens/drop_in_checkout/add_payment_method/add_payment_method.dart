@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:inai_flutter_sdk/main.dart';
+import 'package:inai_flutter_sdk/inai_flutter_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../contants.dart';
 
@@ -127,7 +127,7 @@ class AddPaymentMethod extends StatelessWidget {
     Map<String, dynamic> responseBody = jsonDecode(response.body);
     if (responseBody.containsKey("id")) {
       generatedOrderId = responseBody["id"];
-      if (savedCustomerId != null) {
+      if (savedCustomerId == null) {
         //  Save the new customer id so we can reuse it later
         String customerId = responseBody["customer_id"];
         await prefs.setString("customerId-${Constants.token}", customerId);
