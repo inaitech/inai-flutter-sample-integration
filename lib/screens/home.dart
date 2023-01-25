@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sample_integration/screens/drop_in_checkout/drop_in_flows.dart';
+import 'crypto/crypto_purchase_estimates.dart';
 import 'headless_checkout/headless_checkout.dart';
 
 class ThemeColors {
@@ -10,7 +11,8 @@ class ThemeColors {
 // Add more flows here
 const flows = {
   "HeadlessCheckout": "Headless Checkout",
-  "DropInChekout": "Drop In Checkout"
+  "DropInChekout": "Drop In Checkout",
+  "Crypto": "Crypto"
 };
 
 class Home extends StatelessWidget {
@@ -60,6 +62,11 @@ class FlowItem extends StatelessWidget {
       case "DropInChekout":
         Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => const DropInFlows()));
+        break;
+
+      case "Crypto":
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const CryptoPurchaseEstimates()));
         break;
       //  Add more flows here
     }

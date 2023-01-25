@@ -5,4 +5,8 @@ class Constants {
   static const String country = "USA";
   static const String amount = "1500";
   static const String currency = "USD";
+
+  //  Crypto
+  static const String cryptoCurrency = "BTC";
+  static const String paymentMethodOption = "instapay";
 }
