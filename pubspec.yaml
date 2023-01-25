@@ -16,7 +16,7 @@ dependencies:
   shared_preferences: ^2.0.15
   pay: ^1.0.11
 
-  inai_flutter_sdk: ^0.1.0
+  inai_flutter_sdk: ^0.1.1
 
 dev_dependencies:
   flutter_lints: ^2.0.0
